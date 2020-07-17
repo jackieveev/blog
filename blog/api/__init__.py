@@ -30,7 +30,7 @@ def logout():
 # 2、...
 @app.before_request
 def before_request():
-  if (not request.path.startswith('/login') and not request.path.startswith('/logout') and 'user' not in session):
+  if (not request.path.startswith('/api/login') and not request.path.startswith('/api/logout') and 'user' not in session):
     abort(401)
   print('gogogo')
 
