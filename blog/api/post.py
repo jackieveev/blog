@@ -8,13 +8,9 @@ post_bp = Blueprint('post', __name__)
 
 @post_bp.route('/', strict_slashes=False, methods=['POST'])
 def create_post():
-  try:
     post = Post(title=request.json['title'],
                 body=request.json['body'],
                 category_id=request.json['category_id'])
-  except KeyError as e:
-    abort(400, 'missing params: %s' % e)
-  else:
     db.session.add(post)
     db.session.commit()
     return json_response(post.id)
@@ -22,6 +18,10 @@ def create_post():
 @post_bp.route('/<id>', methods=['GET'])
 def get_post(id):
   return json_response(Post.get(id))
+
+@post_bp.route('/list', methods=['GET'])
+def get_category_list():
+  return json_response(Post.list())
 
 @post_bp.route('/<id>', methods=['DELETE'])
 def delete_post(id):

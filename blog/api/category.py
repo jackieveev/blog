@@ -14,8 +14,8 @@ def create_post():
   return json_response(category.id)
 
 @category_bp.route('/list', methods=['GET'])
-def get_category_list(id):
-  return json_response(Category.list(request.args.get('page'), request.args.get('size')))
+def get_category_list():
+  return json_response(Category.list())
 
 @category_bp.route('/<id>', methods=['DELETE'])
 def delete_category(id):

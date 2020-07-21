@@ -1,8 +1,8 @@
 import datetime
 from werkzeug.security import generate_password_hash
 from werkzeug.security import check_password_hash
+from flask import request
 from blog.ext import db
-from flask import abort
 from blog.util import json_response
 class Base:
   id = db.Column(db.Integer, primary_key=True)
@@ -20,20 +20,20 @@ class Base:
     return res.dict if res else None
   
   @classmethod
-  def list(cls, page, size):
-    try:
-      p = int(page)
-      s = int(size)
-    except:
-      abort(400, 'params page and size must be int')
-    else:
-      res = cls.query.offset((p - 1) * s).limit(s).all()
-      return {
-        'page': p,
-        'size': s,
-        'total': cls.query.count(),
-        'rows': list(map(lambda e: e.dict, res))
-      }
+  def list(cls):
+    page = request.args.get('page', type=int)
+    size = request.args.get('size', type=int)
+    if (page is None):
+      raise abort(400, 'page expect type [int]')
+    if (size is None):
+      raise abort(400, 'size expect type [int]')
+    res = cls.query.offset((page - 1) * size).limit(size).all()
+    return {
+      'page': page,
+      'size': size,
+      'total': cls.query.count(),
+      'rows': list(map(lambda e: e.dict, res))
+    }
     
 # 管理员
 class Operator(db.Model, Base):
@@ -49,6 +49,12 @@ class Operator(db.Model, Base):
   def password(self, value):
     self.password_hash = generate_password_hash(value)
   
+  @property
+  def dict(self):
+    res = super().dict
+    del res['password_hash']
+    return res
+
   def check_password(self, value):
     return check_password_hash(self.password_hash, value)
 
